@@ -60,26 +60,27 @@ MAIN(){
     # if user not exist in the Data Base
     if [[ -z $USER_ID ]]
     then
-      # Write welcome message
+      # Write welcome message for new users
       echo "Welcome, $USER_NAME! It looks like this is your first time here."
       # Create new User
       INSET_NEW_USER=$($PSQL "INSERT INTO users(username, best_game) VALUES('$USER_NAME', 1000);")
       # Getting user ID from the Data Base given the name
       USER_ID=$($PSQL "SELECT user_id FROM users WHERE username='$USER_NAME';")
-      # Executing the game
+      # Executing the game logic
       GUESSING_GAME $USER_ID
     else 
-      # Get user information
+      # Get user information games_played and best_game
       USER_INFO=$($PSQL "SELECT games_played, best_game FROM users WHERE user_id=$USER_ID;")
-      # Writing the welcome message output
+      # Spliting in two variables the USER_INFO variable that has two variables enside.
       echo "$USER_INFO" | while IFS='|' read GAMES_PLAYED BEST_GAME
       do 
+        # Writing the welcome message output for known users
         echo "Welcome back, $USER_NAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
         ((GAMES_PLAYED++))
         # Updating number of played games
         UPDATE_USER=$($PSQL "UPDATE users SET games_played=$GAMES_PLAYED WHERE user_id=$USER_ID;")
       done
-      # Executing the game
+      # Executing the game logic
       GUESSING_GAME $USER_ID
     fi
   else
@@ -90,3 +91,4 @@ MAIN(){
 }
 
 MAIN
+
